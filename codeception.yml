@@ -9,6 +9,67 @@ extensions:
   enabled:
     - Codeception\Extension\RunFailed
 params:
+  - .env
+  - .env.test
   - .env.test.local
 settings:
     error_level: "E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED"
+    retry_attempts: "%MAUTIC_RETRY_ATTEMPTS%"
+    ssl_verify: "%MAUTIC_SSL_VERIFY%"
+    colors: true
+    memory_limit: 1024M
+    log: true
+    debug: true
+
+coverage:
+    enabled: true
+    remote: false
+
+modules:
+    config:
+        WebDriver:
+            url: "%MAUTIC_URL%"
+            browser: chrome
+            host: "%SELENIUM_HOST%"
+            port: "%SELENIUM_PORT%"
+            window_size: 1920x1080
+            capabilities:
+              browserName: chrome
+              acceptInsecureCerts: true
+              goog:chromeOptions:
+                args:
+                  - "--no-sandbox"
+                  - "--disable-gpu"
+                  - "--headless"
+                  - "--disable-dev-shm-usage"
+                  - "--remote-debugging-port=9222"
+            restart: true
+            connection_timeout: 120
+            request_timeout: 120
+            wait_timeout: 180
+            debug_log_entries: true
+            log_js_errors: true
+            clear_logs: true
+            pageLoad: "normal"
+            stop_on_fail: true
+            http_proxy: ''
+            ssl_verify: false
+            screenshotPath: '%codecept.output_dir%/screenshots'
+            screenshotFullPage: true
+        REST:
+            url: "%MAUTIC_URL%"
+            timeout: "%MAUTIC_CONNECTION_TIMEOUT%"
+
+namespace: MauticCampaignTesting
+
+suites:
+    acceptance:
+        actor: AcceptanceTester
+        actor_class: AcceptanceTester
+        modules:
+            enabled:
+                - WebDriver
+                - Acceptance\Helper\Acceptance
+        namespace: Tests\Acceptance
+        path: tests/acceptance
+        pattern: '*Cest.php'
